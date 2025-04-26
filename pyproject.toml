@@ -1,0 +1,14 @@
+[project]
+name = "supply-chain-logistics-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "folium>=0.19.5",
+    "google-generativeai>=0.8.5",
+    "openai-agents>=0.0.11",
+    "openrouteservice>=2.3.3",
+    "ortools>=9.12.4544",
+    "streamlit-folium>=0.25.0",
+]

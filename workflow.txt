@@ -1,0 +1,32 @@
+🔄 Daily Workflow:
+1. Read orders.json → extract delivery addresses.
+2. Read inventory.json → check if all items can be fulfilled.
+3. Route Optimization (e.g., OR-Tools or dummy logic).
+4. Suggest restocking if inventory is low.
+5. Output initial optimized route.
+6. Allow user to manually adjust route (via simple UI).
+7. Re-optimize based on changes.
+
+
+graph TD
+    A[Load Inventory JSON] --> B[Load Orders JSON]
+    B --> C[Check Stock & Fulfill Orders]
+    C --> D[Save Updated Inventory & Orders]
+
+    D --> E[Extract Delivery Locations]
+    E --> F[Optimize Route (TSP/VRP)]
+    F --> G[Show Route to User]
+
+    G --> H{User adjusts stops?}
+    H -- Yes --> I[Re-optimize with Manual Changes]
+    H -- No --> J[Dispatch Route to Driver]
+
+
+🔁 Final Vision Flow
+User Places Order ➜
+Agent Checks Inventory ➜
+Fulfills What’s Possible ➜
+Extracts Destinations ➜
+Optimizes Route (TSP) ➜
+Returns Route Plan ➜
+(Manual Route Changes Allowed Next)
