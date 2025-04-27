@@ -142,14 +142,14 @@ assistant = Agent(
     tools=[solve_vrp_tool],
 )
 
-# # Example usage
-if __name__ == "__main__":
-    user_query = """
-    Please optimize delivery routes with:
-    - 3 vehicles available
-    - Each vehicle can carry 5 items
-    - Delivery demands are 5 each at 3 delivery address
-    """
+# # # Example usage
+# if __name__ == "__main__":
+#     user_query = """
+    # Please optimize delivery routes with:
+    # - 3 vehicles available
+    # - Each vehicle can carry 5 items
+    # - Delivery demands are 5 each at 3 delivery address
+#     """
     
-    result = Runner.run_sync(assistant, user_query)
-    print(result.final_output)
+#     result = Runner.run_sync(assistant, user_query)
+#     print(result.final_output)
