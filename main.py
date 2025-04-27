@@ -11,6 +11,7 @@ from agents import Runner
 from vrp_agent_runner import assistant
 import json
 import re
+import config
 
 # UI
 st.set_page_config(page_title="Vehicle Route Optimizer", page_icon="🗺️")
@@ -19,54 +20,57 @@ st.title("🗺️ Vehicle Route Optimizer")
 user_query = st.text_area("Enter your query here:", height=120)
 
 if user_query:
-    if st.button("Solve VRP and Show Map", use_container_width=True):
-        with st.spinner("Optimizing route..."):
-            try:
+    optimize_by = st.selectbox("Optimize by: ", ["Distance", "Time"])
+    if optimize_by:
+        # Set the optimization preference in config
+        config.set_optimize_by(optimize_by)
+        if st.button("Solve VRP and Show Map", use_container_width=True):
+            with st.spinner("Optimizing route..."):
                 try:
-                    loop = asyncio.get_event_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    
-                result = Runner.run_sync(assistant, user_query)
-                output = result.final_output
-                st.session_state.output = output
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        
+                    result = Runner.run_sync(assistant, user_query)
+                    output = result.final_output
+                    st.session_state.output = output
 
-                # Clean and verify output
-                try:
-                    output_clean = output.strip()
-                    output_json_match = re.search(r"\{.*\}", output_clean, re.DOTALL)
-                    
-                    if not output_json_match:
-                        raise ValueError("No valid JSON object found in the output")
+                    # Clean and verify output
+                    try:
+                        output_clean = output.strip()
+                        output_json_match = re.search(r"\{.*\}", output_clean, re.DOTALL)
+                        
+                        if not output_json_match:
+                            raise ValueError("No valid JSON object found in the output")
 
-                    output_dict = json.loads(output_json_match.group())
+                        output_dict = json.loads(output_json_match.group())
+
+                    except Exception as e:
+                        st.error(f"❌ Failed to parse final_output as JSON: {str(e)}")
+                        st.stop()                    
+                    
+                    if isinstance(output_dict, dict):
+                        # Store solution components in session state
+                        st.session_state.explanation = output_dict.get('explanation', '')
+                        st.session_state.routes = output_dict.get('routes', [])
+                        st.session_state.coordinates = output_dict.get('coordinates', [])
+                        st.session_state.addresses = output_dict.get('addresses', [])
+                        st.session_state.demands = output_dict.get('demands', [])
+                        
+                    else:
+                        st.error("Unexpected response format from the route optimizer")
 
                 except Exception as e:
-                    st.error(f"❌ Failed to parse final_output as JSON: {str(e)}")
-                    st.stop()                    
-                
-                if isinstance(output_dict, dict):
-                    # Store solution components in session state
-                    st.session_state.explanation = output_dict.get('explanation', '')
-                    st.session_state.routes = output_dict.get('routes', [])
-                    st.session_state.coordinates = output_dict.get('coordinates', [])
-                    st.session_state.addresses = output_dict.get('addresses', [])
-                    st.session_state.demands = output_dict.get('demands', [])
-                    
-                else:
-                    st.error("Unexpected response format from the route optimizer")
-
-            except Exception as e:
-                st.error(f"Error solving VRP: {str(e)}")
-                st.error("Please check your query format and try again")
+                    st.error(f"Error solving VRP: {str(e)}")
+                    st.error("Please check your query format and try again")
 
     # Only show map if we have valid routes
     if "routes" in st.session_state and st.session_state.routes:
         st.write("✅ Route optimization completed!")
         # st.write(st.session_state.output)
-        if "explanation" in st.session_state and st.session_state.explanation:
-            st.write(st.session_state.explanation)
+        st.write(st.session_state.explanation)
 
         # Display the solution details
         for i, route in enumerate(st.session_state.routes):

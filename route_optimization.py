@@ -1,7 +1,8 @@
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 from address_to_coordinates import get_coordinates
-from distance_matrix import get_distance_matrix
+from distance_matrix import get_distance_duration_matrix
+import config
 import time
 
 
@@ -61,15 +62,12 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
 
     print('Coordinates: ', coordinates)
 
-    osrm_coords = ";".join([f"{lon},{lat}" for lat, lon in coordinates])
-    distance_matrix = get_distance_matrix(osrm_coords)
+    distance_matrix, duration_matrix = get_distance_duration_matrix(coordinates)
     if distance_matrix is None:
         print("Exiting due to distance matrix failure.")
         return
-
-    # Convert distances from meters to integers (required by OR-Tools)
-    distance_matrix = [[int(cell) for cell in row] for row in distance_matrix]
     print('Distance Matrix: ', distance_matrix)
+    print('Duration Matrix: ', duration_matrix)
 
 
     # Create the routing index manager
@@ -84,10 +82,22 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
         to_node = manager.IndexToNode(to_index)
         return int(distance_matrix[from_node][to_node])
 
-    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+    # Create and register duration callback
+    def duration_callback(from_index, to_index):
+        """Returns the duration between the two nodes."""
+        from_node = manager.IndexToNode(from_index)
+        to_node = manager.IndexToNode(to_index)
+        return int(duration_matrix[from_node][to_node])
 
-    # Define cost of each arc
-    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+    distance_callback_index = routing.RegisterTransitCallback(distance_callback)
+    duration_callback_index = routing.RegisterTransitCallback(duration_callback)
+
+    # Define cost of each arc based on optimization preference
+    if config.get_optimize_by() == 'Distance':
+        routing.SetArcCostEvaluatorOfAllVehicles(distance_callback_index)
+    else:
+        routing.SetArcCostEvaluatorOfAllVehicles(duration_callback_index)
 
     # Add Capacity constraint
     def demand_callback(from_index):
@@ -101,6 +111,15 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
         vehicle_capacities,  # vehicle maximum capacities
         True,  # start cumul to zero
         "Capacity")
+    
+    # Add Time Window constraint (using duration)
+    routing.AddDimension(
+        duration_callback_index,
+        0,  # no slack
+        86400,  # 24 hours max, adjust as needed
+        False,  # don't force start to zero.
+        "Time"
+    )
 
     # Setting first solution heuristic
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
