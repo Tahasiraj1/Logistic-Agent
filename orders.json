@@ -5,12 +5,7 @@
     "items": [
       {
         "product_id": "P001",
-        "quantity": 1,
-        "fullfilled": false
-      },
-      {
-        "product_id": "P002",
-        "quantity": 2,
+        "quantity": 0,
         "fullfilled": false
       }
     ]
@@ -21,12 +16,7 @@
     "items": [
       {
         "product_id": "P001",
-        "quantity": 3,
-        "fullfilled": false
-      },
-      {
-        "product_id": "P003",
-        "quantity": 4,
+        "quantity": 5,
         "fullfilled": false
       }
     ]
@@ -39,11 +29,6 @@
         "product_id": "P001",
         "quantity": 5,
         "fullfilled": false
-      },
-      {
-        "product_id": "P003",
-        "quantity": 6,
-        "fullfilled": false
       }
     ]
   },
@@ -53,12 +38,7 @@
     "items": [
       {
         "product_id": "P001",
-        "quantity": 7,
-        "fullfilled": false
-      },
-      {
-        "product_id": "P003",
-        "quantity": 8,
+        "quantity": 5,
         "fullfilled": false
       }
     ]

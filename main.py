@@ -19,6 +19,13 @@ st.title("🗺️ Vehicle Route Optimizer")
 
 user_query = st.text_area("Enter your query here:", height=120)
 
+with st.expander("Example Query"):
+    st.write("""
+    Please optimize delivery routes with:
+    - 3 vehicles available
+    - Each vehicle can carry 5 items
+    """)
+
 if user_query:
     optimize_by = st.selectbox("Optimize by: ", ["Distance", "Time"])
     if optimize_by:

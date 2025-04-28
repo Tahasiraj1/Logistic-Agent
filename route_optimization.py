@@ -139,4 +139,4 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
     for i, route in enumerate(routes):
         print(f'Route {i}: {route}')
 
-    return manager, solution, routes, coordinates, addresses, demands
+    return solution, routes, coordinates, addresses, demands

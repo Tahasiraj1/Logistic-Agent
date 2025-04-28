@@ -19,16 +19,17 @@ def retrieve_inventory():
     return [item['stock'] for item in inventory]
     
 
-def retrieve_addresses():
+def retrieve_addresses_and_demands():
     orders = load_orders()
-    addresses = []
+    address_demands = {}
     for order in orders:
         fullfilled = all(item['fullfilled'] for item in order['items'])
         if fullfilled:
             continue
-        addresses.append(order['destination'])
+        demands = sum(item['quantity'] for item in order['items'])
+        address_demands[order['destination']] = demands
     
-    return addresses
+    return address_demands
 
 
 def fulfill_orders(inventory_list, orders):

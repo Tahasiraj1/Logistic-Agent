@@ -1,6 +1,6 @@
 from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, function_tool, Runner
 from route_optimization import solve_vrp
-from inventory import retrieve_addresses
+from inventory import retrieve_addresses_and_demands
 import google.generativeai as genai
 from typing import Dict
 import json
@@ -29,7 +29,6 @@ def format_query(query: str) -> Dict:
 
     prompt = f"""
     Convert this delivery route optimization query to JSON format with these fields:
-    - delivery_demands: list of integers representing demands at each location (first number should be 0 for depot)
     - vehicle_capacity: integer representing max capacity per vehicle
     - num_vehicles: integer number of available vehicles
     - depot: integer index of depot location (usually 0)
@@ -38,7 +37,6 @@ def format_query(query: str) -> Dict:
 
     Response format:
     {{
-        "delivery_demands": [0, 5, 5, 5],
         "vehicle_capacity": 5,
         "num_vehicles": 3,
         "depot": 0
@@ -58,7 +56,7 @@ def format_query(query: str) -> Dict:
         params = json.loads(json_text)
         
         # Validate required fields
-        required_fields = ['delivery_demands', 'vehicle_capacity', 'num_vehicles', 'depot']
+        required_fields = ['vehicle_capacity', 'num_vehicles', 'depot']
         for field in required_fields:
             if field not in params:
                 raise ValueError(f"Missing required field: {field}")
@@ -77,28 +75,24 @@ def solve_vrp_tool(query: str):
     if not params:
         return "Failed to parse query. Please try rephrasing."
     
-    delivery_demands = params.get('delivery_demands', [])
     vehicle_capacity = params.get('vehicle_capacity', 0)
     num_vehicles = params.get('num_vehicles', 0)
-    depot = params.get('depot', 0)
-
-    required_fields = ['delivery_demands', 'vehicle_capacity', 'num_vehicles', 'depot']
-    for field in required_fields:
-        if field not in params:
-            return f"Missing required field: {field}"
-    
-    print(delivery_demands, vehicle_capacity, num_vehicles, depot)
+    depot = params.get('depot', 0)    
         
-    # Get delivery addresses
-    addresses = retrieve_addresses()
-    if not addresses:
-        return "No delivery addresses found in orders."
+    # Get delivery addresses and demands
+    addresses_and_demands = []
+    for address, demands in retrieve_addresses_and_demands().items():
+        addresses_and_demands.append((address, demands))
+    if not addresses_and_demands:
+        return "No delivery addresses and demands found in orders."
+
+    print(addresses_and_demands, vehicle_capacity, num_vehicles, depot)
         
     # Solve VRP with parsed parameters
     try:
-        manager, solution, routes, coordinates, addresses, demands = solve_vrp(
-            addresses=addresses,
-            demands=delivery_demands,
+        solution, routes, coordinates, addresses, demands = solve_vrp(
+            addresses=[address for address, _ in addresses_and_demands],
+            demands=[demand for _, demand in addresses_and_demands],
             vehicle_capacities=[vehicle_capacity] * num_vehicles,
             num_vehicles=num_vehicles,
             depot=depot
@@ -125,9 +119,8 @@ assistant = Agent(
     You are a supply chain expert. Given the user query, extract:
     - Number of vehicles
     - Vehicle capacity
-    - Delivery demands
     - Depot (optional, default: 0)
-    Do NOT ask for delivery addresses — they are retrieved automatically.
+    Do NOT ask for delivery addresses or demands — they are retrieved automatically.
     Call solve_vrp_tool with these parameters and return the result as a JSON object containing routes, addresses, demands, and coordinates, with an explanation field.
     Example:
     {
@@ -148,7 +141,6 @@ assistant = Agent(
     # Please optimize delivery routes with:
     # - 3 vehicles available
     # - Each vehicle can carry 5 items
-    # - Delivery demands are 5 each at 3 delivery address
 #     """
     
 #     result = Runner.run_sync(assistant, user_query)
