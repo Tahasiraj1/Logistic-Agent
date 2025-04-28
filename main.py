@@ -11,7 +11,7 @@ from agents import Runner
 from vrp_agent_runner import assistant
 import json
 import re
-import config
+import utils
 
 # UI
 st.set_page_config(page_title="Vehicle Route Optimizer", page_icon="🗺️")
@@ -30,7 +30,7 @@ if user_query:
     optimize_by = st.selectbox("Optimize by: ", ["Distance", "Time"])
     if optimize_by:
         # Set the optimization preference in config
-        config.set_optimize_by(optimize_by)
+        utils.set_optimize_by(optimize_by)
         if st.button("Solve VRP and Show Map", use_container_width=True):
             with st.spinner("Optimizing route..."):
                 try:
@@ -65,6 +65,7 @@ if user_query:
                         st.session_state.coordinates = output_dict.get('coordinates', [])
                         st.session_state.addresses = output_dict.get('addresses', [])
                         st.session_state.demands = output_dict.get('demands', [])
+                        st.session_state.plan_output = output_dict.get('plan_output', '')
                         
                     else:
                         st.error("Unexpected response format from the route optimizer")
@@ -73,11 +74,17 @@ if user_query:
                     st.error(f"Error solving VRP: {str(e)}")
                     st.error("Please check your query format and try again")
 
+
     # Only show map if we have valid routes
     if "routes" in st.session_state and st.session_state.routes:
         st.write("✅ Route optimization completed!")
-        # st.write(st.session_state.output)
         st.write(st.session_state.explanation)
+
+        if "plan_output" in st.session_state and st.session_state.plan_output:
+            st.write("🛣️ **Optimized VRP Solution:**")
+            st.text(st.session_state.plan_output)  # use st.text to preserve line breaks
+        else:
+            st.error("❌ No plan output found.")
 
         # Display the solution details
         for i, route in enumerate(st.session_state.routes):

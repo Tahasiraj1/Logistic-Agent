@@ -6,6 +6,7 @@ from typing import Dict
 import json
 import os
 import re
+from utils import print_solution
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
@@ -90,7 +91,7 @@ def solve_vrp_tool(query: str):
         
     # Solve VRP with parsed parameters
     try:
-        solution, routes, coordinates, addresses, demands = solve_vrp(
+        manager, routing, solution, routes, coordinates, addresses, demands = solve_vrp(
             addresses=[address for address, _ in addresses_and_demands],
             demands=[demand for _, demand in addresses_and_demands],
             vehicle_capacities=[vehicle_capacity] * num_vehicles,
@@ -100,12 +101,16 @@ def solve_vrp_tool(query: str):
         
         if not solution:
             return "No valid solution found. Please check your constraints."
-            
+
+        # Get nicely formatted plan_output
+        plan_output = print_solution(manager, routing, solution, addresses)
+
         result = {
-            "routes": routes,  # List of routes, each route is a list of node indices
+            "routes": routes,  # List of routes
             "coordinates": coordinates,  # List of (lat, lon) tuples
             "addresses": addresses,  # List of address strings
-            "demands": demands,  # List of demand values
+            "demands": demands,  # List of demands
+            "plan_output": plan_output,  # 👈 nicely formatted VRP solution as a string
         }
         
         return result
@@ -121,13 +126,14 @@ assistant = Agent(
     - Vehicle capacity
     - Depot (optional, default: 0)
     Do NOT ask for delivery addresses or demands — they are retrieved automatically.
-    Call solve_vrp_tool with these parameters and return the result as a JSON object containing routes, addresses, demands, and coordinates, with an explanation field.
+    Call solve_vrp_tool with these parameters and return the result as a JSON object containing routes, addresses, demands, and coordinates, with a plan_output and an explanation field.
     Example:
     {
       "routes": [[0, 1, 0], [0, 2, 0], [0, 3, 0]],
       "addresses": ["350 5th Ave, New York, NY 10118", ...],
       "demands": [0, 5, 5, 5],
       "coordinates": [[40.7484421, -73.9856589], ...],
+      "plan_output": "...",
       "explanation": "..."
     }
     """,
