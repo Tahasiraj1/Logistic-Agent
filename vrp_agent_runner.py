@@ -1,14 +1,13 @@
 from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, function_tool, Runner
 from route_optimization import solve_vrp
+from utils import print_solution, format_query
+from db_config import get_user_conversations
 from inventory import retrieve_addresses_and_demands
-import google.generativeai as genai
-from typing import Dict
-import json
 import os
-import re
-from utils import print_solution
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
 
 provider = AsyncOpenAI(
     api_key=gemini_api_key,
@@ -20,74 +19,32 @@ model = OpenAIChatCompletionsModel(
     openai_client=provider,
 )
 
-def format_query(query: str) -> Dict:
-    """
-    Convert natural language query to structured format
-    Returns a dictionary with VRP parameters
-    """
-    genai.configure(api_key=gemini_api_key)
-    genai_model = genai.GenerativeModel("gemini-2.0-flash")
+# Global variable to store current user context
+current_user_id = None
 
-    prompt = f"""
-    Convert this delivery route optimization query to JSON format with these fields:
-    - vehicle_capacity: integer representing max capacity per vehicle
-    - num_vehicles: integer number of available vehicles
-    - depot: integer index of depot location (usually 0)
+def set_current_user(user_id):
+    """Set the current user context"""
+    global current_user_id
+    current_user_id = user_id
 
-    User Query: {query}
-
-    Response format:
-    {{
-        "vehicle_capacity": 5,
-        "num_vehicles": 3,
-        "depot": 0
-    }}
-    """
-
-    try:
-        response = genai_model.generate_content(prompt)
-        raw_response = response.text.strip()
-        
-        # Extract JSON using regex
-        match = re.search(r"\{.*\}", raw_response, re.DOTALL)
-        if not match:
-            raise ValueError(f"Failed to extract JSON from response: {raw_response}")
-            
-        json_text = match.group(0)
-        params = json.loads(json_text)
-        
-        # Validate required fields
-        required_fields = ['vehicle_capacity', 'num_vehicles', 'depot']
-        for field in required_fields:
-            if field not in params:
-                raise ValueError(f"Missing required field: {field}")
-                
-        return params
-        
-    except Exception as e:
-        print(f"Error processing query: {str(e)}")
-        return None
+@function_tool
+def get_recent_conversations_tool():
+    """Retrieve recent conversations from the database."""
+    global current_user_id
+    if not current_user_id:
+        return "No conversation history available - user not logged in"
+    history_context = get_user_conversations(user_id=current_user_id)
+    print("Retrieved conversation history:", history_context)
+    return history_context
 
 @function_tool
 def solve_vrp_tool(query: str):
     """Process natural language query and solve the VRP."""
-    # Parse the query
-    params = format_query(query)
-    if not params:
-        return "Failed to parse query. Please try rephrasing."
-    
-    vehicle_capacity = params.get('vehicle_capacity', 0)
-    num_vehicles = params.get('num_vehicles', 0)
-    depot = params.get('depot', 0)    
-        
-    # Get delivery addresses and demands
-    addresses_and_demands = []
-    for address, demands in retrieve_addresses_and_demands().items():
-        addresses_and_demands.append((address, demands))
-    if not addresses_and_demands:
-        return "No delivery addresses and demands found in orders."
 
-    print(addresses_and_demands, vehicle_capacity, num_vehicles, depot)
+    # Parse the query
+    vehicle_capacity, num_vehicles, depot = format_query(query)
+
+    addresses_and_demands = retrieve_addresses_and_demands() 
         
     # Solve VRP with parsed parameters
     try:
@@ -104,13 +61,14 @@ def solve_vrp_tool(query: str):
 
         # Get nicely formatted plan_output
         plan_output = print_solution(manager, routing, solution, addresses)
-
+    
         result = {
             "routes": routes,  # List of routes
             "coordinates": coordinates,  # List of (lat, lon) tuples
             "addresses": addresses,  # List of address strings
             "demands": demands,  # List of demands
             "plan_output": plan_output,  # 👈 nicely formatted VRP solution as a string
+            "user_query": query,
         }
         
         return result
@@ -118,36 +76,51 @@ def solve_vrp_tool(query: str):
     except Exception as e:
         return f"Error solving VRP: {str(e)}"
 
-assistant = Agent(
-    name="VRP Route Planner",
-    instructions="""
-    You are a supply chain expert. Given the user query, extract:
-    - Number of vehicles
-    - Vehicle capacity
-    - Depot (optional, default: 0)
-    Do NOT ask for delivery addresses or demands — they are retrieved automatically.
-    Call solve_vrp_tool with these parameters and return the result as a JSON object containing routes, addresses, demands, and coordinates, with a plan_output and an explanation field.
-    Example:
-    {
-      "routes": [[0, 1, 0], [0, 2, 0], [0, 3, 0]],
-      "addresses": ["350 5th Ave, New York, NY 10118", ...],
-      "demands": [0, 5, 5, 5],
-      "coordinates": [[40.7484421, -73.9856589], ...],
-      "plan_output": "...",
-      "explanation": "..."
-    }
-    """,
-    model=model,
-    tools=[solve_vrp_tool],
-)
+class VRPAssistant:
+    def __init__(self, user_id=None):
+        self.user_id = user_id
+        set_current_user(user_id)  # Set the current user context
+        self.assistant = self._create_assistant()
 
-# # # Example usage
+    def _create_assistant(self):
+        print("Current user ID:", self.user_id)
+        return Agent(
+            name="VRP Route Planner",
+            instructions="""
+            You are a supply chain expert. Given the user query, extract:
+            - Number of vehicles
+            - Vehicle capacity
+            - Depot (optional, default: 0)
+            Do NOT ask for delivery addresses or demands — they are retrieved automatically.
+            Do NOT generate addresses on your own — they are retrieved automatically.
+            You MUST check the past conversation context by calling get_recent_conversations_tool(), if your response is based on past conversations, mention it appropriately.
+            Call solve_vrp_tool with these parameters and return the result as a JSON object containing routes, addresses, demands, and coordinates, with a plan_output and an explanation field.
+            Example:
+            {
+              "routes": [[0, 1, 0], [0, 2, 0], [0, 3, 0]],
+              "addresses": ["350 5th Ave, New York, NY 10118", ...],
+              "demands": [0, 5, 5, 5],
+              "coordinates": [[40.7484421, -73.9856589], ...],
+              "plan_output": "...",
+              "explanation": "...",
+              "user_query": "...",
+            }
+            """,
+            model=model,
+            tools=[solve_vrp_tool, get_recent_conversations_tool],
+        )
+
+    def run(self, query):
+        return Runner.run_sync(self.assistant, query)
+
+# # Example usage
 # if __name__ == "__main__":
 #     user_query = """
-    # Please optimize delivery routes with:
-    # - 3 vehicles available
-    # - Each vehicle can carry 5 items
+#     Please optimize delivery routes with:
+#     - 3 vehicles available
+#     - Each vehicle can carry 5 items
 #     """
     
-#     result = Runner.run_sync(assistant, user_query)
+#     assistant = VRPAssistant(user_id="test_user")
+#     result = assistant.run(user_query)
 #     print(result.final_output)

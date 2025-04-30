@@ -9,7 +9,6 @@ def load_inventory():
     with open('inventory.json', 'r') as f:
         return json.load(f)
 
-
 def load_orders():
     with open('orders.json', 'r') as f:
         return json.load(f)
@@ -18,19 +17,17 @@ def retrieve_inventory():
     inventory = load_inventory()
     return [item['stock'] for item in inventory]
     
-
 def retrieve_addresses_and_demands():
     orders = load_orders()
-    address_demands = {}
+    addresses_and_demands = []
     for order in orders:
         fullfilled = all(item['fullfilled'] for item in order['items'])
         if fullfilled:
             continue
         demands = sum(item['quantity'] for item in order['items'])
-        address_demands[order['destination']] = demands
+        addresses_and_demands.append((order['destination'], demands))
     
-    return address_demands
-
+    return addresses_and_demands
 
 def fulfill_orders(inventory_list, orders):
     inventory = {item['product_id']: item for item in inventory_list}
