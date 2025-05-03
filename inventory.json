@@ -13,5 +13,10 @@
     "product_id": "P003",
     "name": "Widget C",
     "stock": 150
+  },
+  {
+    "product_id": "P004",
+    "name": "Widget D",
+    "stock": 150
   }
 ]

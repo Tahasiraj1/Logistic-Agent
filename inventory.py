@@ -13,10 +13,6 @@ def load_orders():
     with open('orders.json', 'r') as f:
         return json.load(f)
     
-def retrieve_inventory():
-    inventory = load_inventory()
-    return [item['stock'] for item in inventory]
-    
 def retrieve_addresses_and_demands():
     orders = load_orders()
     addresses_and_demands = []
@@ -66,6 +62,38 @@ def fulfill_orders(inventory_list, orders):
     with open('orders.json', 'w') as f:
         json.dump(orders, f, indent=2)
         print("✔️ Orders updated and saved.")
+
+def display_inventory():
+    inventory = load_inventory()
+    display_items = []
+
+    for item in inventory:
+        display_items.append({
+            'product_id': item['product_id'],
+            'name': item['name'],
+            'stock': item['stock'],
+            'status': "Inventory is low" if item['stock'] < 10 else "Inventory is sufficient"
+        })
+
+    return display_items
+
+def display_orders():
+    orders = load_orders()
+    display_orders = []
+
+    for order in orders:
+        for item in order['items']:
+            if not item['fullfilled'] and item['quantity'] > 0:
+                display_orders.append({
+                    'order_id': order['order_id'],
+                    'destination': order['destination'],
+                    'product_id': item['product_id'],
+                    'quantity': item['quantity'],
+                    'status': "Order not fulfilled"
+                })
+
+    return display_orders
+
 
 # Main execution
 # if __name__ == "__main__":

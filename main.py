@@ -10,13 +10,14 @@ import streamlit as st
 from vrp_agent_runner import VRPAssistant
 import utils
 from db_config import save_conversation
+from inventory import display_inventory, display_orders
 
 
 # UI
 st.set_page_config(page_title="Vehicle Route Optimizer", page_icon="🗺️")
 st.title("🗺️ Vehicle Route Optimizer")
 
-tab1, tab2, tab3 = st.tabs(["Home", "Route Optimization", "Inventory Management"])
+tab1, tab2, tab3, tab4 = st.tabs(["Home", "Route Optimization", "Inventory Management", "Orders"])
 
 if st.experimental_user.is_logged_in:
     # Initialize VRP Assistant with user_id
@@ -119,7 +120,14 @@ if st.experimental_user.is_logged_in:
                         st.error("Please make sure you have valid coordinates and routes")
 
     with tab3:
+        # I want to use this tab to display inventory and orders in table
         st.subheader("Inventory Management Tab Content")
+        st.table(display_inventory())
+    
+    with tab4:
+        st.subheader("Orders Tab Content")
+        st.write("This tab will display orders and their status.")
+        st.table(display_orders())
 else:
     st.subheader("🔑 Login to Access the App")
     st.write("Please log in using your configured account, to use the Vehicle Route Optimizer.")

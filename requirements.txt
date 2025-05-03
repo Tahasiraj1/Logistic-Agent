@@ -1,0 +1,9 @@
+streamlit
+streamlit-folium
+folium
+openai
+google-generativeai
+pydantic
+protobuf
+sqlite3
+ortools
