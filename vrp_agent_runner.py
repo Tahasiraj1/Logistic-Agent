@@ -83,7 +83,6 @@ class VRPAssistant:
         self.assistant = self._create_assistant()
 
     def _create_assistant(self):
-        print("Current user ID:", self.user_id)
         return Agent(
             name="VRP Route Planner",
             instructions="""
