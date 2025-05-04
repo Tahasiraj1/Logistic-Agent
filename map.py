@@ -1,9 +1,9 @@
 import folium
-import utils
+from utils import tile_providers, get_tile
 
 def create_map(coordinates, addresses, routes, demands):
-    style = utils.get_tile()
-    tile_info = utils.tile_providers.get(style, utils.tile_providers["OpenStreetMap"])
+    style = get_tile()
+    tile_info = tile_providers.get(style, tile_providers["OpenStreetMap"])
 
     avg_lat = sum(lat for lat, _ in coordinates) / len(coordinates)
     avg_lon = sum(lon for _, lon in coordinates) / len(coordinates)
