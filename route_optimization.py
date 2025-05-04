@@ -2,6 +2,7 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 from address_to_coordinates import get_coordinates
 from distance_matrix import get_distance_duration_matrix
+from inventory import retrieve_addresses_and_demands
 import utils
 import time
 
@@ -92,3 +93,66 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
     routes = utils.get_routes(solution, routing, manager)
 
     return manager, routing, solution, routes, coordinates, addresses, demands
+
+def solve_tsp():
+    """Entry point of the program."""
+
+    addresses_and_demands = retrieve_addresses_and_demands()
+    addresses = [address for address, _ in addresses_and_demands]
+    demands = [demand for _, demand in addresses_and_demands]
+
+    # Convert addresses to coordinates
+    coordinates = []
+    for address in addresses:
+        coord = get_coordinates(address)
+        if coord:
+            print(f"📍 {address} → {coord}")
+            coordinates.append(coord)
+        time.sleep(1)  # Respect rate limit
+
+    print('Coordinates: ', coordinates)
+
+    distance_matrix, duration_matrix = get_distance_duration_matrix(coordinates)
+    if distance_matrix is None:
+        print("Exiting due to distance matrix failure.")
+        return
+    print('Distance Matrix: ', distance_matrix)
+    print('Duration Matrix: ', duration_matrix)
+
+    # Create the routing index manager
+    manager = pywrapcp.RoutingIndexManager(len(distance_matrix), 1, 0)
+    
+    # Create Routing Model.
+    routing = pywrapcp.RoutingModel(manager)
+
+    def distance_callback(from_index, to_index):
+        """Returns the distance between the two nodes."""
+        # Convert from routing variable Index to distance matrix NodeIndex.
+        from_node = manager.IndexToNode(from_index)
+        to_node = manager.IndexToNode(to_index)
+        return distance_matrix[from_node][to_node]
+
+    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+
+    # Define cost of each arc.
+    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+    # Setting first solution heuristic.
+    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+    search_parameters.first_solution_strategy = (
+        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+    )
+
+    # Solve the problem.
+    solution = routing.SolveWithParameters(search_parameters)
+
+    if solution:
+        output = utils.print_solution(manager, routing, solution, addresses)
+
+    # Get routes
+    routes = utils.get_routes(solution, routing, manager)
+
+    return output, routes, coordinates, addresses, demands
+
+if __name__ == '__main__':
+    output, routes, coordinates, addresses, demands = solve_tsp()

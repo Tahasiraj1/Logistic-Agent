@@ -1,9 +1,13 @@
 import folium
+import utils
 
 def create_map(coordinates, addresses, routes, demands):
+    style = utils.get_tile()
+    tile_info = utils.tile_providers.get(style, utils.tile_providers["OpenStreetMap"])
+
     avg_lat = sum(lat for lat, _ in coordinates) / len(coordinates)
     avg_lon = sum(lon for _, lon in coordinates) / len(coordinates)
-    m = folium.Map(location=[avg_lat, avg_lon], zoom_start=12)
+    m = folium.Map(location=[avg_lat, avg_lon], tiles=tile_info["tiles"], attr=tile_info["attr"], zoom_start=12)
 
     for i, (lat, lon) in enumerate(coordinates):
         popup_text = f"{addresses[i]}<br>Demand: {demands[i]}"

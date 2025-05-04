@@ -11,13 +11,14 @@ from vrp_agent_runner import VRPAssistant
 import utils
 from db_config import save_conversation
 from inventory import display_inventory, display_orders
+from route_optimization import solve_tsp
 
 
 # UI
 st.set_page_config(page_title="Vehicle Route Optimizer", page_icon="🗺️")
 st.title("🗺️ Vehicle Route Optimizer")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Home", "Route Optimization", "Inventory Management", "Orders"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "VRP Optimization", "TSP Optimization", "Inventory Management", "Orders"])
 
 if st.experimental_user.is_logged_in:
     # Initialize VRP Assistant with user_id
@@ -105,6 +106,8 @@ if st.experimental_user.is_logged_in:
                 for i, route in enumerate(st.session_state.routes):
                     st.write(f"Route {i + 1}: {' → '.join(str(node) for node in route)}")
 
+                utils.set_tile(st.selectbox("Select a map tile:", list(utils.tile_providers.keys())))
+
                 with st.spinner("Generating map..."):
                     st.subheader("Optimized Route Map")
                     try:
@@ -114,17 +117,63 @@ if st.experimental_user.is_logged_in:
                             st.session_state.routes,
                             st.session_state.demands
                         )
-                        st_folium(folium_map, width=700, height=500)
+                        st_folium(folium_map, width=700, height=500, key="vrp_map")
                     except Exception as e:
                         st.error(f"Error generating map: {str(e)}")
                         st.error("Please make sure you have valid coordinates and routes")
 
     with tab3:
+        st.subheader("TSP Optimization")
+        if st.button("Solve TSP and Show Map", use_container_width=True):
+            with st.spinner("Optimizing route..."):
+                try:
+                    output, routes, coordinates, addresses, demands = solve_tsp()
+                    st.session_state.plan_output_tsp = output
+                    st.session_state.routes_tsp = routes
+                    st.session_state.coordinates_tsp = coordinates
+                    st.session_state.addresses_tsp = addresses
+                    st.session_state.demands_tsp = demands
+                except Exception as e:
+                    st.error(f"Error solving TSP: {str(e)}")
+
+        # Only show map if we have valid routes
+        if "routes" in st.session_state and st.session_state.routes_tsp:
+            st.write("✅ Route optimization completed!")
+            st.subheader("🛣️ **Optimized TSP Solution:**")
+            st.write(st.session_state.plan_output_tsp)
+
+            # Display the solution details
+            for i, route in enumerate(st.session_state.routes_tsp):
+                st.write(f"Route {i + 1}: {' → '.join(str(node) for node in route)}")
+
+            save_conversation(
+                st.experimental_user.sub,
+                "TSP Optimization",
+                "TSP optimization completed.",
+                st.session_state.addresses_tsp,
+                st.session_state.demands_tsp,
+                st.session_state.plan_output_tsp
+            )
+
+            
+            utils.set_tile(st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="tsp_tile_selector"))
+
+            with st.spinner("Generating map..."):   
+                st.subheader("Optimized TSP Route Map")
+                folium_map = create_map(
+                    st.session_state.coordinates_tsp,
+                    st.session_state.addresses_tsp,
+                    st.session_state.routes_tsp,
+                    st.session_state.demands_tsp, 
+                )
+                st_folium(folium_map, width=700, height=500, key="tsp_map")
+
+    with tab4:
         # I want to use this tab to display inventory and orders in table
         st.subheader("Inventory Management Tab Content")
         st.table(display_inventory())
     
-    with tab4:
+    with tab5:
         st.subheader("Orders Tab Content")
         st.write("This tab will display orders and their status.")
         st.table(display_orders())
