@@ -7,3 +7,4 @@ pydantic
 protobuf
 sqlite3
 ortools
+authlib
