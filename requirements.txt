@@ -1,4 +1,4 @@
-authlib
+Authlib>=1.3.2
 cryptography
 streamlit
 streamlit-folium
