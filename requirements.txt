@@ -6,6 +6,5 @@ google-generativeai
 pydantic
 protobuf
 ortools
-Authlib
 authlib
 cryptography
