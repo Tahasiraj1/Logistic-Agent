@@ -3,9 +3,9 @@ from route_optimization import solve_vrp
 from utils import print_solution, format_query
 from db_config import get_user_conversations
 from inventory import retrieve_addresses_and_demands
-import os
+import streamlit as st
 
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+gemini_api_key = st.secrets["api_keys"]["GEMINI_API_KEY"]
 # if not gemini_api_key:
 #     raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
 

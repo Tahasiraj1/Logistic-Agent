@@ -2,11 +2,11 @@ import google.generativeai as genai
 from typing import Dict
 import json
 import re
-import os
+import streamlit as st
 
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-# if not gemini_api_key:
-#     raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
+gemini_api_key = st.secrets["api_keys"]["GEMINI_API_KEY"]
+if not gemini_api_key:
+    raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
 
 # Function for printing the solution of the VRP
 def print_solution(manager, routing, solution, addresses):

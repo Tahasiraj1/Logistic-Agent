@@ -1,8 +1,8 @@
 import requests
-import os
+import streamlit as st
 import json
 
-api_key = os.getenv("GEOAPIFY_API_KEY")
+api_key = st.secrets["api_keys"]["GEOAPIFY_API_KEY"]
 
 def get_distance_duration_matrix(coordinates):
     """Fetches distance matrix from Geoapify API."""
