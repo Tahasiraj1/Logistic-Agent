@@ -1,3 +1,5 @@
+authlib
+cryptography
 streamlit
 streamlit-folium
 folium
@@ -6,5 +8,3 @@ google-generativeai
 pydantic
 protobuf
 ortools
-authlib
-cryptography
