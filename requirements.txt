@@ -1,6 +1,5 @@
 authlib
 cryptography
-streamlit
 streamlit-folium
 folium
 openai
