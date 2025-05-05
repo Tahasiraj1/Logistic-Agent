@@ -14,6 +14,13 @@ from inventory import display_inventory, display_orders
 from route_optimization import solve_tsp
 
 
+try:
+    import authlib
+except ImportError:
+    st.error("Authlib is not installed. Please install it with `pip install Authlib>=1.3.2`.")
+    st.stop()
+
+
 # UI
 st.set_page_config(page_title="Vehicle Route Optimizer", page_icon="🗺️")
 st.title("🗺️ Vehicle Route Optimizer")
