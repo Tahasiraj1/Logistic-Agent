@@ -5,8 +5,8 @@ import re
 import os
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
-if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
+# if not gemini_api_key:
+#     raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
 
 # Function for printing the solution of the VRP
 def print_solution(manager, routing, solution, addresses):

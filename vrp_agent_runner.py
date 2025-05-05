@@ -6,8 +6,8 @@ from inventory import retrieve_addresses_and_demands
 import os
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
-if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
+# if not gemini_api_key:
+#     raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
 
 provider = AsyncOpenAI(
     api_key=gemini_api_key,
