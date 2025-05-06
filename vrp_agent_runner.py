@@ -112,14 +112,14 @@ class VRPAssistant:
     def run(self, query):
         return Runner.run_sync(self.assistant, query)
 
-# # Example usage
-# if __name__ == "__main__":
-#     user_query = """
-#     Please optimize delivery routes with:
-#     - 3 vehicles available
-#     - Each vehicle can carry 5 items
-#     """
+# Example usage
+if __name__ == "__main__":
+    user_query = """
+    Please optimize delivery routes with:
+    - 3 vehicles available
+    - Each vehicle can carry 5 items
+    """
     
-#     assistant = VRPAssistant(user_id="test_user")
-#     result = assistant.run(user_query)
-#     print(result.final_output)
+    assistant = VRPAssistant(user_id="test_user")
+    result = assistant.run(user_query)
+    print(result.final_output)

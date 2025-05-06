@@ -136,7 +136,7 @@ if st.experimental_user.is_logged_in:
                     st.error(f"Error solving TSP: {str(e)}")
 
         # Only show map if we have valid routes
-        if "routes" in st.session_state and st.session_state.routes_tsp:
+        if "routes_tsp" in st.session_state and st.session_state.routes_tsp:
             st.write("✅ Route optimization completed!")
             st.subheader("🛣️ **Optimized TSP Solution:**")
             st.write(st.session_state.plan_output_tsp)
@@ -176,6 +176,7 @@ if st.experimental_user.is_logged_in:
         st.subheader("Orders Tab Content")
         st.write("This tab will display orders and their status.")
         st.table(display_orders())
+
 else:
     st.subheader("🔑 Login to Access the App")
     st.write("Please log in using your configured account, to use the Vehicle Route Optimizer.")
