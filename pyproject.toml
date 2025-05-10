@@ -10,5 +10,6 @@ dependencies = [
     "openai-agents>=0.0.11",
     "openrouteservice>=2.3.3",
     "ortools>=9.12.4544",
+    "polyline>=2.0.2",
     "streamlit-folium>=0.25.0",
 ]

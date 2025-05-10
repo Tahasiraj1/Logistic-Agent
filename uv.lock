@@ -975,6 +975,15 @@ wheels = [
 ]
 
 [[package]]
+name = "polyline"
+version = "2.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1d/2f/e6a437b785d951867882b9fba52a70b81fe8af778bbb4d96b6fb69630f72/polyline-2.0.2.tar.gz", hash = "sha256:10541e759c5fd51f746ee304e9af94744089a4055b6257b293b3afd1df64e369", size = 6400 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/4f/fbf07370cbf98af0098de83a26625d29aaa0bf73ef7123b561459729f3e6/polyline-2.0.2-py3-none-any.whl", hash = "sha256:389655c893bdabf2863c6aaa49490cf83dcdcec86ae715f67044ee98be57bef5", size = 5970 },
+]
+
+[[package]]
 name = "proto-plus"
 version = "1.26.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1474,6 +1483,7 @@ dependencies = [
     { name = "openai-agents" },
     { name = "openrouteservice" },
     { name = "ortools" },
+    { name = "polyline" },
     { name = "streamlit-folium" },
 ]
 
@@ -1484,6 +1494,7 @@ requires-dist = [
     { name = "openai-agents", specifier = ">=0.0.11" },
     { name = "openrouteservice", specifier = ">=2.3.3" },
     { name = "ortools", specifier = ">=9.12.4544" },
+    { name = "polyline", specifier = ">=2.0.2" },
     { name = "streamlit-folium", specifier = ">=0.25.0" },
 ]
 
