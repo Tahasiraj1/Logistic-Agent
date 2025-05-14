@@ -24,6 +24,7 @@ if st.experimental_user.is_logged_in:
     if 'vrp_assistant' not in st.session_state:
         st.session_state.vrp_assistant = VRPAssistant(user_id=st.experimental_user.sub)
 
+    # Home Tab
     with tab1:
         st.write(f"Welcome **{st.experimental_user.name}** to the Vehicle Route Optimization App!")
         st.write("This app helps you optimize delivery routes for your supply chain.")
@@ -31,6 +32,7 @@ if st.experimental_user.is_logged_in:
         if st.button("Logout", use_container_width=True):
             st.logout()
 
+    # VRP Optimization
     with tab2:
         user_query = st.text_area("Enter your query here:", height=80)
 
@@ -105,22 +107,33 @@ if st.experimental_user.is_logged_in:
                 for i, route in enumerate(st.session_state.routes):
                     st.write(f"Route {i + 1}: {' → '.join(str(node) for node in route)}")
 
-                utils.set_tile(st.selectbox("Select a map tile:", list(utils.tile_providers.keys())))
+                # Tile selector
+                selected_tile = st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="vrp_tile_selector")
+                utils.set_tile(selected_tile)
 
-                with st.spinner("Generating map..."):
-                    st.subheader("Optimized Route Map")
-                    try:
-                        folium_map = create_map(
+                # Generate map only if it doesn't exist or tile has changed
+                st.subheader("Optimized VRP Route Map")
+                if "vrp_map" not in st.session_state or st.session_state.get("last_tile") != selected_tile:
+                    with st.spinner("Generating map..."):
+                        st.session_state.vrp_map = create_map(
                             st.session_state.coordinates,
                             st.session_state.addresses,
                             st.session_state.routes,
                             st.session_state.demands
                         )
-                        st_folium(folium_map, width=700, height=500, key="vrp_map")
-                    except Exception as e:
-                        st.error(f"Error generating map: {str(e)}")
-                        st.error("Please make sure you have valid coordinates and routes")
+                        st.session_state.last_tile = selected_tile
 
+                # Display the map
+                if "vrp_map" in st.session_state and st.session_state.vrp_map:
+                    st_folium(
+                        st.session_state.vrp_map,
+                        width=700,
+                        height=500,
+                        key="tsp_map",
+                        returned_objects=[]  # Prevent capturing map interactions
+                    )
+
+    # TSP Optimization
     with tab3:
         st.subheader("TSP Optimization")
         if st.button("Solve TSP and Show Map", use_container_width=True):
@@ -154,24 +167,39 @@ if st.experimental_user.is_logged_in:
                 st.session_state.plan_output_tsp
             )
 
-            
-            utils.set_tile(st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="tsp_tile_selector"))
+            # Tile selector
+            selected_tile = st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="tsp_tile_selector")
+            utils.set_tile(selected_tile)
 
-            with st.spinner("Generating map..."):   
-                st.subheader("Optimized TSP Route Map")
-                folium_map = create_map(
-                    st.session_state.coordinates_tsp,
-                    st.session_state.addresses_tsp,
-                    st.session_state.routes_tsp,
-                    st.session_state.demands_tsp, 
+            # Generate map only if it doesn't exist or tile has changed
+            st.subheader("Optimized TSP Route Map")
+            if "tsp_map" not in st.session_state or st.session_state.get("last_tile") != selected_tile:
+                with st.spinner("Generating map..."):
+                    st.session_state.tsp_map = create_map(
+                        st.session_state.coordinates_tsp,
+                        st.session_state.addresses_tsp,
+                        st.session_state.routes_tsp,
+                        st.session_state.demands_tsp,
+                    )
+                    st.session_state.last_tile = selected_tile
+
+            # Display the map
+            if "tsp_map" in st.session_state and st.session_state.tsp_map:
+                st_folium(
+                    st.session_state.tsp_map,
+                    width=700,
+                    height=500,
+                    key="tsp_map",
+                    returned_objects=[]  # Prevent capturing map interactions
                 )
-                st_folium(folium_map, width=700, height=500, key="tsp_map")
 
+    # Inventory Management Tab
     with tab4:
         # I want to use this tab to display inventory and orders in table
         st.subheader("Inventory Management Tab Content")
         st.table(display_inventory())
-    
+
+    # Orders Tab
     with tab5:
         st.subheader("Orders Tab Content")
         st.write("This tab will display orders and their status.")
