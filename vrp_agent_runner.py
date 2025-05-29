@@ -1,4 +1,4 @@
-from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, function_tool, Runner
+from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, function_tool, Runner, set_tracing_disabled
 from route_optimization import solve_vrp
 from utils import print_solution, format_query
 from db_config import get_user_conversations
@@ -8,6 +8,8 @@ import os
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 if not gemini_api_key:
     raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
+
+set_tracing_disabled(disabled=True)
 
 provider = AsyncOpenAI(
     api_key=gemini_api_key,

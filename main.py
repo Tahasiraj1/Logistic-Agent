@@ -60,7 +60,9 @@ if st.experimental_user.is_logged_in:
                             result = st.session_state.vrp_assistant.run(user_query)
                             output = result.final_output
                             st.session_state.output = output
-                            st.write(output)
+
+                            with st.expander("📝 Output"):
+                                st.write(output)
 
                             # Clean and verify output
                             output_dict = utils.clean_output(output)                 
