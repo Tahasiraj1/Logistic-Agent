@@ -1,6 +1,6 @@
 from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, function_tool, Runner, set_tracing_disabled
 from route_optimization import solve_vrp
-from utils import print_solution, format_query
+from utils import print_solution
 from db_config import get_user_conversations
 from inventory import retrieve_addresses_and_demands
 import os
@@ -40,11 +40,18 @@ def get_recent_conversations_tool():
     return history_context
 
 @function_tool
-def solve_vrp_tool(query: str):
-    """Process natural language query and solve the VRP."""
+def solve_vrp_tool(query: str, vehicle_capacity: int, num_vehicles: int, depot: int = 0):
+    """Fetch the weather for a given location.
 
-    # Parse the query
-    vehicle_capacity, num_vehicles, depot = format_query(query)
+    Args:
+        vehicle_capacity: integer representing max capacity per vehicle. (e.g. [0, 5, 5, 5])
+        num_vehicles: integer number of available vehicles. (e.g. 3)
+        depot: integer index of depot location (usually 0)
+        query: natural language query from which vehicle capacity, num_vehicles, and depot are extracted.
+
+    Returns:
+        An object containing the solution routes, coordinates, addresses, and demands.
+    """
 
     addresses_and_demands = retrieve_addresses_and_demands() 
         

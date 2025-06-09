@@ -1,5 +1,3 @@
-import google.generativeai as genai
-from typing import Dict
 import json
 import re
 import os
@@ -51,59 +49,6 @@ def get_routes(solution, routing, manager):
         routes.append(route)
     return routes
 
-# Function to format the user query
-def format_query(query: str) -> Dict:
-    """
-    Convert natural language query to structured format
-    Returns a dictionary with VRP parameters
-    """
-    genai.configure(api_key=gemini_api_key)
-    genai_model = genai.GenerativeModel("gemini-2.0-flash")
-
-    prompt = f"""
-    Convert this delivery route optimization query to JSON format with these fields:
-    - vehicle_capacity: integer representing max capacity per vehicle
-    - num_vehicles: integer number of available vehicles
-    - depot: integer index of depot location (usually 0)
-
-    User Query: {query}
-
-    Response format:
-    {{
-        "vehicle_capacity": 5,
-        "num_vehicles": 3,
-        "depot": 0
-    }}
-    """
-
-    try:
-        response = genai_model.generate_content(prompt)
-        raw_response = response.text.strip()
-        
-        # Extract JSON using regex
-        match = re.search(r"\{.*\}", raw_response, re.DOTALL)
-        if not match:
-            raise ValueError(f"Failed to extract JSON from response: {raw_response}")
-            
-        json_text = match.group(0)
-        params = json.loads(json_text)
-        
-        # Validate required fields
-        required_fields = ['vehicle_capacity', 'num_vehicles', 'depot']
-        for field in required_fields:
-            if field not in params:
-                raise ValueError(f"Missing required field: {field}")
-
-        vehicle_capacity = params.get('vehicle_capacity', 0)
-        num_vehicles = params.get('num_vehicles', 0)
-        depot = params.get('depot', 0)
-
-        return vehicle_capacity, num_vehicles, depot
-        
-    except Exception as e:
-        print(f"Error processing query: {str(e)}")
-        return None
-    
 # Global configuration variables for the VRP
 optimize_by = "Distance"  # Default value
 
