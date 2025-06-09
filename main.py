@@ -89,7 +89,7 @@ if st.experimental_user.is_logged_in:
             VRP is more realistic for logistics and delivery applications where resources and limits must be considered.
             """)
 
-        st.subheader("For more information, please visit the following links: https://developers.google.com/optimization/routing")
+        st.write("For more information, please visit the following links: https://developers.google.com/optimization/routing")
         if st.button("Logout", use_container_width=True):
             st.logout()
 
