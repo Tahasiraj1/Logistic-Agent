@@ -2,10 +2,11 @@ from agents import function_tool
 from helper.solution import print_solution
 from inventory import retrieve_addresses_and_demands
 from route_optimization import solve_vrp
+from typing import List
 
 @function_tool
-def solve_vrp_tool(query: str, vehicle_capacity: int, num_vehicles: int, depot: int = 0):
-    """Fetch the weather for a given location.
+def solve_vrp_tool(query: str, vehicle_capacity: List[int], num_vehicles: int, depot: int = 0):
+    """Solve the Vehicle Routing Problem (VRP) with the given parameters.
 
     Args:
         vehicle_capacity: integer representing max capacity per vehicle. (e.g. [0, 5, 5, 5])
@@ -14,7 +15,7 @@ def solve_vrp_tool(query: str, vehicle_capacity: int, num_vehicles: int, depot: 
         query: natural language query from which vehicle capacity, num_vehicles, and depot are extracted.
 
     Returns:
-        An object containing the solution routes, coordinates, addresses, and demands.
+        An object containing the solution routes, coordinates, addresses, demands, plan_output, and user_query.
     """
 
     addresses_and_demands = retrieve_addresses_and_demands() 

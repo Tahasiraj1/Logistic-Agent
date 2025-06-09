@@ -31,6 +31,61 @@ if st.experimental_user.is_logged_in:
         st.write(f"Welcome **{st.experimental_user.name}** to the Vehicle Route Optimization App!")
         st.write("This app helps you optimize delivery routes for your supply chain.")
 
+        st.subheader("📝 FAQ")
+
+        with st.expander("What is an optimization problem?"):
+            st.write("""
+            The goal of optimization is to find the best solution to a problem out of a large set of possible solutions. (Sometimes you'll be satisfied with finding any feasible solution; OR-Tools can do that as well.)
+
+            Here's a typical optimization problem. Suppose that a shipping company delivers packages to its customers using a fleet of trucks. Every day, the company must assign packages to trucks, and then choose a route for each truck to deliver its packages. Each possible assignment of packages and routes has a cost, based on the total travel distance for the trucks, and possibly other factors as well. The problem is to choose the assignments of packages and routes that has the least cost.
+
+            Like all optimization problems, this problem has the following elements:
+
+            The objective—the quantity you want to optimize. In the example above, the objective is to minimize cost. To set up an optimization problem, you need to define a function that calculates the value of the objective for any possible solution. This is called the objective function. In the preceding example, the objective function would calculate the total cost of any assignment of packages and routes.
+
+            An optimal solution is one for which the value of the objective function is the best. ("Best" can be either a maximum or a minimum.)
+
+            The constraints—restrictions on the set of possible solutions, based on the specific requirements of the problem. For example, if the shipping company can't assign packages above a given weight to trucks, this would impose a constraint on the solutions.
+
+            A feasible solution is one that satisfies all the given constraints for the problem, without necessarily being optimal.
+
+            The first step in solving an optimization problem is identifying the objective and constraints.
+            """)
+
+        with st.expander("What is TSP Optimization?"):
+            st.write("""
+            One of the most common optimization tasks is vehicle routing, in which the goal is to find the best routes for a fleet of vehicles visiting a set of locations. Usually, "best" means routes with the least total distance or cost. Here are a few examples of routing problems:
+
+            A package delivery company wants to assign routes for drivers to make deliveries.
+            A cable TV company wants to assign routes for technicians to make residential service calls.
+            A ride-sharing company wants to assign routes for drivers to pick up and drop off passengers.
+            The most famous routing problem is the Traveling Salesperson Problem (TSP): find the shortest route for a salesperson who needs to visit customers at different locations and return to the starting point. A TSP can be represented by a graph, in which the nodes correspond to the locations, and the edges (or arcs) denote direct travel between locations. For example, the graph below shows a TSP with just four locations, labeled A, B, C, and D. The distance between any two locations is given by the number next to the edge joining them.
+            """)
+
+        with st.expander("What is VRP Optimization?"):
+            st.write("""
+            In the Vehicle Routing Problem (VRP), the goal is to find optimal routes for multiple vehicles visiting a set of locations. (When there's only one vehicle, it reduces to the Traveling Salesperson Problem.)
+
+            But what do we mean by "optimal routes" for a VRP? One answer is the routes with the least total distance. However, if there are no other constraints, the optimal solution is to assign just one vehicle to visit all locations, and find the shortest route for that vehicle. This is essentially the same problem as the TSP.
+
+            A better way to define optimal routes is to minimize the length of the longest single route among all vehicles. This is the right definition if the goal is to complete all deliveries as soon as possible.
+            """)
+        with st.expander("What is the difference between VRP and TSP?"):
+            st.write("""
+            The Traveling Salesperson Problem (TSP) is a special case of the Vehicle Routing Problem (VRP).
+
+            In TSP, a single vehicle must visit all locations exactly once and return to the starting point, with the goal of minimizing the total travel distance or cost.
+
+            In contrast, VRP involves multiple vehicles that start from a depot and must each serve a subset of locations. VRP can include additional constraints like vehicle capacity, delivery time windows, or specific priorities.
+
+            In short:
+            - TSP: Single vehicle, visit all nodes once.
+            - VRP: Multiple vehicles, each with constraints (like capacity), optimized for overall efficiency.
+
+            VRP is more realistic for logistics and delivery applications where resources and limits must be considered.
+            """)
+
+        st.subheader("For more information, please visit the following links: https://developers.google.com/optimization/routing")
         if st.button("Logout", use_container_width=True):
             st.logout()
 
