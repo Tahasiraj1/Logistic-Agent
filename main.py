@@ -48,8 +48,6 @@ if st.experimental_user.is_logged_in:
             The constraints—restrictions on the set of possible solutions, based on the specific requirements of the problem. For example, if the shipping company can't assign packages above a given weight to trucks, this would impose a constraint on the solutions.
 
             A feasible solution is one that satisfies all the given constraints for the problem, without necessarily being optimal.
-
-            The first step in solving an optimization problem is identifying the objective and constraints.
             """)
 
         with st.expander("What is TSP Optimization?"):
@@ -59,7 +57,12 @@ if st.experimental_user.is_logged_in:
             A package delivery company wants to assign routes for drivers to make deliveries.
             A cable TV company wants to assign routes for technicians to make residential service calls.
             A ride-sharing company wants to assign routes for drivers to pick up and drop off passengers.
-            The most famous routing problem is the Traveling Salesperson Problem (TSP): find the shortest route for a salesperson who needs to visit customers at different locations and return to the starting point. A TSP can be represented by a graph, in which the nodes correspond to the locations, and the edges (or arcs) denote direct travel between locations. For example, the graph below shows a TSP with just four locations, labeled A, B, C, and D. The distance between any two locations is given by the number next to the edge joining them.
+            
+            The most famous routing problem is the Traveling Salesperson Problem (TSP): 
+            
+            find the shortest route for a salesperson who needs to visit customers at different locations and return to the starting point. 
+            
+            A TSP can be represented by a graph, in which the nodes correspond to the locations, and the edges (or arcs) denote direct travel between locations.
             """)
 
         with st.expander("What is VRP Optimization?"):
@@ -70,6 +73,7 @@ if st.experimental_user.is_logged_in:
 
             A better way to define optimal routes is to minimize the length of the longest single route among all vehicles. This is the right definition if the goal is to complete all deliveries as soon as possible.
             """)
+
         with st.expander("What is the difference between VRP and TSP?"):
             st.write("""
             The Traveling Salesperson Problem (TSP) is a special case of the Vehicle Routing Problem (VRP).
