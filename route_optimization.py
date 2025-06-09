@@ -3,6 +3,7 @@ from ortools.constraint_solver import pywrapcp
 from address_to_coordinates import get_coordinates
 from matrix import get_distance_duration_matrix
 from inventory import retrieve_addresses_and_demands
+from helper.optimize_by import get_optimize_by
 import utils
 import time
 
@@ -53,7 +54,7 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
     duration_callback_index = routing.RegisterTransitCallback(duration_callback)
 
     # Define cost of each arc based on optimization preference
-    if utils.get_optimize_by() == 'Distance':
+    if get_optimize_by() == 'Distance':
         routing.SetArcCostEvaluatorOfAllVehicles(distance_callback_index)
     else:
         routing.SetArcCostEvaluatorOfAllVehicles(duration_callback_index)

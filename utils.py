@@ -49,20 +49,6 @@ def get_routes(solution, routing, manager):
         routes.append(route)
     return routes
 
-# Global configuration variables for the VRP
-optimize_by = "Distance"  # Default value
-
-# Functions to set and get the optimization preference for the VRP
-def set_optimize_by(value: str):
-    """Set the optimization preference"""
-    global optimize_by
-    optimize_by = value
-
-# Function to get the optimization preference
-def get_optimize_by() -> str:
-    """Get the current optimization preference"""
-    return optimize_by
-
 # Function to clean and verify the output from the route optimizer Agent
 def clean_output(output):
     """Clean and verify the output from the route optimizer."""
@@ -78,39 +64,3 @@ def clean_output(output):
         raise ValueError("Unexpected response format from the route optimizer")
     
     return output_dict
-
-tile = 'OpenStreetMap'
-
-def set_tile(style: str):
-    global tile
-    tile = style
-
-def get_tile():
-    return tile
-
-tile_providers = {
-    "OpenStreetMap": {
-        "tiles": "OpenStreetMap",
-        "attr": None
-    },
-    "CartoDB Positron": {
-        "tiles": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        "attr": "© OpenStreetMap contributors, © CartoDB"
-    },
-    "CartoDB Dark Matter": {
-        "tiles": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        "attr": "© OpenStreetMap contributors, © CartoDB"
-    },
-    "Thunderforest SpinalMap": {
-        "tiles": 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        "attr": 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    },
-    'Esri.NatGeoWorldMap': {
-        'tiles': 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', 
-	    'attr': 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
-    },
-    'MtbMap': {
-        'tiles': 'http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png',
-        'attr': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &amp; USGS'
-    }
-}

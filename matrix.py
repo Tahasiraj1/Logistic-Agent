@@ -52,11 +52,3 @@ def get_distance_duration_matrix(coordinates):
     except json.JSONDecodeError:
         print("Error: Could not decode JSON response from Geoapify.")
         return None
-
-# coordinates = [(40.7484421, -73.9856589), (40.7813974, -73.9733215), (40.7070653, -74.0111761), (40.7574044, -73.9902032)]
-# distances, times, data = get_distance_duration_matrix(coordinates)
-# print(distances)
-# print('---------')
-# print(times)
-# print('---------')
-# print(data)

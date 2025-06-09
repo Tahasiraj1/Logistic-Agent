@@ -7,8 +7,10 @@ if sys.platform == "win32":
 from streamlit_folium import st_folium
 from map import create_map
 import streamlit as st
-from vrp_agent_runner import VRPAssistant
-import utils
+from logistic_agents.vrp_agent_runner import VRPAssistant
+from utils import clean_output
+from helper.map_tile import set_tile, tile_providers
+from helper.optimize_by import set_optimize_by
 from db_config import save_conversation
 from inventory import display_inventory, display_orders
 from route_optimization import solve_tsp
@@ -47,7 +49,7 @@ if st.experimental_user.is_logged_in:
             optimize_by = st.selectbox("Optimize by: ", ["Distance", "Time"])
             if optimize_by:
                 # Set the optimization preference in config
-                utils.set_optimize_by(optimize_by)
+                set_optimize_by(optimize_by)
                 if st.button("Solve VRP and Show Map", use_container_width=True):
                     with st.spinner("Optimizing route..."):
                         try:
@@ -65,7 +67,7 @@ if st.experimental_user.is_logged_in:
                                 st.write(output)
 
                             # Clean and verify output
-                            output_dict = utils.clean_output(output)                 
+                            output_dict = clean_output(output)                 
                             
                             if isinstance(output_dict, dict):
                                 # Store solution components in session state
@@ -110,8 +112,8 @@ if st.experimental_user.is_logged_in:
                     st.write(f"Route {i + 1}: {' → '.join(str(node) for node in route)}")
 
                 # Tile selector
-                selected_tile = st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="vrp_tile_selector")
-                utils.set_tile(selected_tile)
+                selected_tile = st.selectbox("Select a map tile:", list(tile_providers.keys()), key="vrp_tile_selector")
+                set_tile(selected_tile)
 
                 # Generate map only if it doesn't exist or tile has changed
                 st.subheader("Optimized VRP Route Map")
@@ -170,8 +172,8 @@ if st.experimental_user.is_logged_in:
             )
 
             # Tile selector
-            selected_tile = st.selectbox("Select a map tile:", list(utils.tile_providers.keys()), key="tsp_tile_selector")
-            utils.set_tile(selected_tile)
+            selected_tile = st.selectbox("Select a map tile:", list(tile_providers.keys()), key="tsp_tile_selector")
+            set_tile(selected_tile)
 
             # Generate map only if it doesn't exist or tile has changed
             st.subheader("Optimized TSP Route Map")

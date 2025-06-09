@@ -1,7 +1,7 @@
 import folium
 import requests
 import json
-from utils import tile_providers, get_tile # Assuming these are correctly implemented
+from helper.map_tile import tile_providers, get_tile # Assuming these are correctly implemented
 import click
 import os
 
@@ -124,5 +124,5 @@ def create_map(coordinates, addresses, routes, demands):
 
 if __name__ == "__main__":
     # Example usage
-    m = create_map([(40.7484421, -73.9856589), (40.7540576, -73.9822573)], ["50 5th Ave, New York, NY 10118", "W 42nd St, New York, NY 10036"], [[0, 1, 0]], [0, 5], "fb3737b657e3472e8f7607a383def134")
+    m = create_map([(40.7484421, -73.9856589), (40.7540576, -73.9822573)], ["50 5th Ave, New York, NY 10118", "W 42nd St, New York, NY 10036"], [[0, 1, 0]], [0, 5], geoapify_api_key)
     m.save("test_map.html")
