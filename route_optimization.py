@@ -1,7 +1,7 @@
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
-from address_to_coordinates import get_coordinates
-from matrix import get_distance_duration_matrix
+from helper.address_to_coordinates import get_coordinates
+from helper.matrix import get_distance_duration_matrix
 from inventory import retrieve_addresses_and_demands
 from helper.optimize_by import get_optimize_by
 import utils

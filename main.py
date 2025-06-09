@@ -5,7 +5,7 @@ if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 from streamlit_folium import st_folium
-from map import create_map
+from helper.map import create_map
 import streamlit as st
 from logistic_agents.vrp_agent_runner import VRPAssistant
 from utils import clean_output
