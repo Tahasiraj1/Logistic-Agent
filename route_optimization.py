@@ -4,7 +4,8 @@ from helper.address_to_coordinates import get_coordinates
 from helper.matrix import get_distance_duration_matrix
 from inventory import retrieve_addresses_and_demands
 from helper.optimize_by import get_optimize_by
-import utils
+from helper.routes import get_routes
+from helper.solution import print_solution
 import time
 
 
@@ -91,7 +92,7 @@ def solve_vrp(addresses, demands, vehicle_capacities, num_vehicles, depot):
     solution = routing.SolveWithParameters(search_parameters)
     
     # Get routes
-    routes = utils.get_routes(solution, routing, manager)
+    routes = get_routes(solution, routing, manager)
 
     return manager, routing, solution, routes, coordinates, addresses, demands
 
@@ -148,10 +149,10 @@ def solve_tsp():
     solution = routing.SolveWithParameters(search_parameters)
 
     if solution:
-        output = utils.print_solution(manager, routing, solution, addresses)
+        output = print_solution(manager, routing, solution, addresses)
 
     # Get routes
-    routes = utils.get_routes(solution, routing, manager)
+    routes = get_routes(solution, routing, manager)
 
     return output, routes, coordinates, addresses, demands
 

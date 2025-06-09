@@ -1,11 +1,3 @@
-import json
-import re
-import os
-
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY not found in environment. Please check your .env file or hardcode temporarily.")
-
 # Function for printing the solution of the VRP
 def print_solution(manager, routing, solution, addresses):
     """Prints the solution routes for all vehicles with addresses and distances."""
@@ -35,32 +27,3 @@ def print_solution(manager, routing, solution, addresses):
         
     plan_output += f"\n📏 Total Distance of all routes: {round(total_distance / 1000, 2)} km\n"
     return plan_output
-
-# Function to get routes from the solution
-def get_routes(solution, routing, manager):
-    """Get vehicle routes from a solution and store them in an array."""
-    routes = []
-    for route_nbr in range(routing.vehicles()):
-        index = routing.Start(route_nbr)
-        route = [manager.IndexToNode(index)]
-        while not routing.IsEnd(index):
-            index = solution.Value(routing.NextVar(index))
-            route.append(manager.IndexToNode(index))
-        routes.append(route)
-    return routes
-
-# Function to clean and verify the output from the route optimizer Agent
-def clean_output(output):
-    """Clean and verify the output from the route optimizer."""
-    output_clean = output.strip()
-    output_json_match = re.search(r"\{.*\}", output_clean, re.DOTALL)
-    
-    if not output_json_match:
-        raise ValueError("No valid JSON object found in the output")
-    
-    output_dict = json.loads(output_json_match.group())
-    
-    if not isinstance(output_dict, dict):
-        raise ValueError("Unexpected response format from the route optimizer")
-    
-    return output_dict
